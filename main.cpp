@@ -5,24 +5,31 @@
 
 template <typename T>
 class Cache {
+private:
+    using un_map = std::unordered_map<T, typename std::list<T>::iterator>;
+
     std::list<T> main_queue, in_queue, out_queue;
-    std::unordered_map<T, typename std::list<T>::iterator> main_hash, in_hash, out_hash;
+    un_map main_hash, in_hash, out_hash;
 
     int main_size, in_size, out_size;
-public:
 
+public:
     explicit Cache(int m_s, int i_s, int o_s) : main_size(m_s),
                                                 in_size(i_s),
                                                 out_size(o_s) {};
 
-    bool in_main(T page);
-    bool in_in(T page);
-    bool in_out(T page);
+    bool Is_in_queue(T page, un_map hash) { return (hash.find(page) != hash.end()); };
+
+    void MovePage_FromFirst_ToSecondList (T page, std::list<T> f_list, un_map f_map,
+                                                  std::list<T> s_list, un_map s_map);
     bool front_main(T page);
     bool front_in(T page);
     bool from_out_to_main(T page);
     bool from_in_to_out(T page);
     bool add_to_in(T page);
+    const un_map& getMainHash() { return main_hash; };
+    const un_map& getInHash() { return in_hash; };
+    const un_map& getOutHash() { return out_hash; };
 };
 
 template <typename T>
@@ -42,28 +49,6 @@ int main() {
 
     printf ("\nresult is %d\n", lookup_pages(c, pages));
     return 0;
-}
-
-
-template <typename T>
-bool Cache<T>::in_main(T page) {
-    if (main_hash.find(page) != main_hash.end())
-        return true;
-    return false;
-}
-
-template <typename T>
-bool Cache<T>::in_in(T page) {
-    if (in_hash.find(page) != in_hash.end())
-        return true;
-    return false;
-}
-
-template <typename T>
-bool Cache<T>::in_out(T page) {
-    if (out_hash.find(page) != out_hash.end())
-        return true;
-    return false;
 }
 
 template <typename T>
@@ -120,6 +105,16 @@ bool Cache<T>::add_to_in(T page) {
     return false;
 }
 
+template<typename T>
+void Cache<T>::MovePage_FromFirst_ToSecondList(T page, std::list<T> f_list, Cache::un_map f_map,
+                                                       std::list<T> s_list, Cache::un_map s_map) {
+
+    auto iter = f_map[page];
+    s_list.splice(s_list.begin(), f_list, iter);
+    f_map.erase(page);
+    s_map[page] = s_list.begin();
+}
+
 template <typename T>
 int lookup_pages (Cache<T> cache, std::vector<T> pages) {
     int hash_hint = 0;
@@ -128,18 +123,18 @@ int lookup_pages (Cache<T> cache, std::vector<T> pages) {
     for (; page_iter != pages.end(); ++page_iter) {
         T page = *page_iter;
 
-        if (cache.in_main(page)) {
+        if (cache.Is_in_queue(page, cache.getMainHash())) {
             cache.front_main(page);
             ++hash_hint;
             continue;
         }
 
-        if (cache.in_in(page)) {
+        if (cache.Is_in_queue(page, cache.getInHash())) {
             cache.front_in(page);
             continue;
         }
 
-        if (cache.in_out(page)) {
+        if (cache.Is_in_queue(page, cache.getOutHash())) {
             cache.from_out_to_main(page);
             continue;
         }
@@ -149,4 +144,3 @@ int lookup_pages (Cache<T> cache, std::vector<T> pages) {
 
     return hash_hint;
 }
-
