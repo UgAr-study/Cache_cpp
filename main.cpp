@@ -14,45 +14,45 @@ private:
     int main_size, in_size, out_size;
 
 public:
-    explicit Cache(int m_s, int i_s, int o_s) : main_size(m_s),
+    explicit Cache (int m_s, int i_s, int o_s) : main_size(m_s),
                                                 in_size(i_s),
                                                 out_size(o_s) {};
 
-    bool Is_in_queue(T page, un_map hash) { return (hash.find(page) != hash.end()); };
+    bool Is_in_queue (T page, un_map hash) { return (hash.find(page) != hash.end()); };
 
     void MovePage_FromFirst_ToSecondList (T page, std::list<T> f_list, un_map f_map,
                                                   std::list<T> s_list, un_map s_map);
-    bool front_main(T page);
-    bool front_in(T page);
-    bool from_out_to_main(T page);
-    bool from_in_to_out(T page);
-    bool add_to_in(T page);
-    const un_map& getMainHash() { return main_hash; };
-    const un_map& getInHash() { return in_hash; };
-    const un_map& getOutHash() { return out_hash; };
+    bool front_main (T page);
+    bool front_in (T page);
+    bool from_out_to_main (T page);
+    bool from_in_to_out (T page);
+    bool add_to_in (T page);
+    const un_map& getMainHash () { return main_hash; };
+    const un_map& getInHash () { return in_hash; };
+    const un_map& getOutHash () { return out_hash; };
 };
 
 template <typename T>
 int lookup_pages (Cache<T> cache, std::vector<T> pages);
 
-int main() {
+int main () {
     int page, m_size, in_size, out_size;
-    scanf("%d", &m_size);
-    scanf("%d", &in_size);
-    scanf("%d", &out_size);
+    scanf ("%d", &m_size);
+    scanf ("%d", &in_size);
+    scanf ("%d", &out_size);
 
     std::vector<int> pages;
     while ((scanf("%d", &page)) == 1)
         pages.push_back(page);
 
-    Cache<int> c = Cache<int>(m_size, in_size, out_size);
+    Cache<int> c = Cache<int> (m_size, in_size, out_size);
 
-    printf ("\nresult is %d\n", lookup_pages(c, pages));
+    printf ("\nresult is %d\n", lookup_pages (c, pages));
     return 0;
 }
 
 template <typename T>
-bool Cache<T>::front_main(T page) {
+bool Cache<T>::front_main (T page) {
     auto iter = main_hash[page];
     main_queue.splice(main_queue.begin(), main_queue, iter);
     main_hash[page] = main_queue.begin();
@@ -60,7 +60,7 @@ bool Cache<T>::front_main(T page) {
 }
 
 template <typename T>
-bool Cache<T>::front_in(T page) {
+bool Cache<T>::front_in (T page) {
     auto iter = in_hash[page];
     main_queue.splice(in_queue.begin(), in_queue, iter);
     in_hash[page] = in_queue.begin();
@@ -68,7 +68,7 @@ bool Cache<T>::front_in(T page) {
 }
 
 template <typename T>
-bool Cache<T>::from_out_to_main(T page) {
+bool Cache<T>::from_out_to_main (T page) {
     if (main_queue.size() == main_size) {
         main_hash.erase(*(--main_queue.end()));
         main_queue.erase((--main_queue.end()));
@@ -82,7 +82,7 @@ bool Cache<T>::from_out_to_main(T page) {
 }
 
 template <typename T>
-bool Cache<T>::from_in_to_out(T page) {
+bool Cache<T>::from_in_to_out (T page) {
     if (out_queue.size() == out_size) {
         out_hash.erase(*(--out_queue.end()));
         out_queue.erase((--out_queue.end()));
@@ -96,7 +96,7 @@ bool Cache<T>::from_in_to_out(T page) {
 }
 
 template <typename T>
-bool Cache<T>::add_to_in(T page) {
+bool Cache<T>::add_to_in (T page) {
     if (in_queue.size() == in_size)
         from_in_to_out(*(--in_queue.end()));
 
@@ -106,7 +106,7 @@ bool Cache<T>::add_to_in(T page) {
 }
 
 template<typename T>
-void Cache<T>::MovePage_FromFirst_ToSecondList(T page, std::list<T> f_list, Cache::un_map f_map,
+void Cache<T>::MovePage_FromFirst_ToSecondList (T page, std::list<T> f_list, Cache::un_map f_map,
                                                        std::list<T> s_list, Cache::un_map s_map) {
 
     auto iter = f_map[page];
