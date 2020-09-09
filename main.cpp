@@ -3,10 +3,10 @@
 #include <list>
 #include <vector>
 
-
+template <typename T>
 class Cache {
-    std::list<int> main_queue, in_queue, out_queue;
-    std::unordered_map<int, std::list<int>::iterator> main_hash, in_hash, out_hash;
+    std::list<T> main_queue, in_queue, out_queue;
+    std::unordered_map<T, typename std::list<T>::iterator> main_hash, in_hash, out_hash;
 
     int main_size, in_size, out_size;
 public:
@@ -15,17 +15,18 @@ public:
                                                 in_size(i_s),
                                                 out_size(o_s) {};
 
-    bool in_main(int page);
-    bool in_in(int page);
-    bool in_out(int page);
-    bool front_main(int page);
-    bool front_in(int page);
-    bool from_out_to_main(int page);
-    bool from_in_to_out(int page);
-    bool add_to_in(int page);
+    bool in_main(T page);
+    bool in_in(T page);
+    bool in_out(T page);
+    bool front_main(T page);
+    bool front_in(T page);
+    bool from_out_to_main(T page);
+    bool from_in_to_out(T page);
+    bool add_to_in(T page);
 };
 
-int lookup_pages (Cache cache, std::vector<int> pages);
+template <typename T>
+int lookup_pages (Cache<T> cache, std::vector<T> pages);
 
 int main() {
     int page, m_size, in_size, out_size;
@@ -37,47 +38,52 @@ int main() {
     while ((scanf("%d", &page)) == 1)
         pages.push_back(page);
 
-    Cache c = Cache(m_size, in_size, out_size);
+    Cache<int> c = Cache<int>(m_size, in_size, out_size);
 
     printf ("\nresult is %d\n", lookup_pages(c, pages));
     return 0;
 }
 
 
-
-bool Cache::in_main(int page) {
+template <typename T>
+bool Cache<T>::in_main(T page) {
     if (main_hash.find(page) != main_hash.end())
         return true;
     return false;
 }
 
-bool Cache::in_in(int page) {
+template <typename T>
+bool Cache<T>::in_in(T page) {
     if (in_hash.find(page) != in_hash.end())
         return true;
     return false;
 }
 
-bool Cache::in_out(int page) {
+template <typename T>
+bool Cache<T>::in_out(T page) {
     if (out_hash.find(page) != out_hash.end())
         return true;
     return false;
 }
 
-bool Cache::front_main(int page) {
+template <typename T>
+bool Cache<T>::front_main(T page) {
     auto iter = main_hash[page];
     main_queue.splice(main_queue.begin(), main_queue, iter);
     main_hash[page] = main_queue.begin();
     return false;
 }
 
-bool Cache::front_in(int page) {
+template <typename T>
+bool Cache<T>::front_in(T page) {
     auto iter = in_hash[page];
     main_queue.splice(in_queue.begin(), in_queue, iter);
     in_hash[page] = in_queue.begin();
     return false;
 }
 
-bool Cache::from_out_to_main(int page) {
+template <typename T>
+bool Cache<T>::from_out_to_main(T page) {
     if (main_queue.size() == main_size) {
         main_hash.erase(*(--main_queue.end()));
         main_queue.erase((--main_queue.end()));
@@ -90,7 +96,8 @@ bool Cache::from_out_to_main(int page) {
     return false;
 }
 
-bool Cache::from_in_to_out(int page) {
+template <typename T>
+bool Cache<T>::from_in_to_out(T page) {
     if (out_queue.size() == out_size) {
         out_hash.erase(*(--out_queue.end()));
         out_queue.erase((--out_queue.end()));
@@ -103,7 +110,8 @@ bool Cache::from_in_to_out(int page) {
     return false;
 }
 
-bool Cache::add_to_in(int page) {
+template <typename T>
+bool Cache<T>::add_to_in(T page) {
     if (in_queue.size() == in_size)
         from_in_to_out(*(--in_queue.end()));
 
@@ -112,13 +120,13 @@ bool Cache::add_to_in(int page) {
     return false;
 }
 
-
-int lookup_pages (Cache cache, std::vector<int> pages) {
+template <typename T>
+int lookup_pages (Cache<T> cache, std::vector<T> pages) {
     int hash_hint = 0;
-    std::vector<int>::iterator page_iter = pages.begin();
+    auto page_iter = pages.begin();
 
     for (; page_iter != pages.end(); ++page_iter) {
-        int page = *page_iter;
+        T page = *page_iter;
 
         if (cache.in_main(page)) {
             cache.front_main(page);
