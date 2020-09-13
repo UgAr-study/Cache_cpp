@@ -29,7 +29,7 @@ public:
 };
 
 
-int main (int argc, char* argv[]) {
+int main (int argc, char* argv[]){
     std::vector<int> pages;
     int page_number, mean1, mean2;
     const char* filename = "test.txt";
