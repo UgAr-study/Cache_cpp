@@ -1,10 +1,10 @@
 # Cache_cpp
 
-Source files:
-  cache2_0.cpp
-  test_generator.cpp
-Header files:
-  cache_header.h
+Source files:\n
+  cache2_0.cpp\n
+  test_generator.cpp\n
+Header files:\n
+  cache_header.h\n
 File for default testing:
   test.txt
 
