@@ -1,7 +1,4 @@
-#include <iostream>
-#include <unordered_map>
-#include <list>
-#include <vector>
+#include "cache_header.h"
 
 template <typename T>
 class Cache {
@@ -31,17 +28,29 @@ public:
     void AddNewPage(T page);
 };
 
-std::vector<int> GetIntPage (const char *file_name);
 
 int main (int argc, char* argv[]) {
     std::vector<int> pages;
+    int page_number, mean1, mean2;
+    const char* filename;
 
     if (argc == 5) {
-        Cache<int> cache = Cache<int> ((size_t)strtol(argv[1], nullptr, 0),
-                                       (size_t)strtol(argv[2], nullptr, 0),
-                                       (size_t)strtol(argv[3], nullptr, 0));
-        pages = GetIntPage(argv[4]);
-        printf ("result is %zu\n", cache.LookUpHits(pages));
+        filename = argv[1];
+        page_number = static_cast<int>(strtol(argv[2], nullptr, 0));
+        mean1 = static_cast<int>(strtol(argv[3], nullptr, 0));
+        mean2 = static_cast<int>(strtol(argv[4], nullptr, 0));
+        FillTestFile(filename,page_number, mean1, mean2);
+
+        pages = GetIntPage(filename);
+        size_t main_size = page_number / 5 * 2,
+            in_size = page_number / 5,
+            out_size = page_number / 5 * 6;
+        Cache<int> cache{main_size, in_size, out_size};
+        size_t result = cache.LookUpHits(pages);
+        printf ("result is %zu\n", result);
+    } else {
+        printf ("Not all parameters\n");
+        exit(0);
     }
 
     return 0;
