@@ -1,9 +1,8 @@
 # Cache_cpp
 
 Source files:
-
-  cache2_0.cpp
-  test_generator.cpp
+  cache2_0.cpp;
+  test_generator.cpp;
 Header files:
   cache_header.h
 File for default testing:
