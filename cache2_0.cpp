@@ -32,16 +32,24 @@ public:
 int main (int argc, char* argv[]) {
     std::vector<int> pages;
     int page_number, mean1, mean2;
-    const char* filename;
+    const char* filename = "test.txt";
 
-    if (argc == 5) {
-        filename = argv[1];
-        page_number = static_cast<int>(strtol(argv[2], nullptr, 0));
-        mean1 = static_cast<int>(strtol(argv[3], nullptr, 0));
-        mean2 = static_cast<int>(strtol(argv[4], nullptr, 0));
+    if (argc >= 4) {
+#ifdef USERTEST
+        if (argc < 5) {
+            printf("Not all parameters\n")
+            exit(0);
+        }
+        filename = argv[4];
+#endif
+        page_number = static_cast<int>(strtol(argv[1], nullptr, 0));
+        mean1 = static_cast<int>(strtol(argv[2], nullptr, 0));
+        mean2 = static_cast<int>(strtol(argv[3], nullptr, 0));
         FillTestFile(filename,page_number, mean1, mean2);
 
         pages = GetIntPage(filename);
+
+
         size_t main_size = page_number / 5 * 2,
             in_size = page_number / 5,
             out_size = page_number / 5 * 6;
