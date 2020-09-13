@@ -1,7 +1,8 @@
 # Cache_cpp
 
 Source files:
-  //cache2_0.cpp
+
+  cache2_0.cpp
   test_generator.cpp
 Header files:
   cache_header.h
