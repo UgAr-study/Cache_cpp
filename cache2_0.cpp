@@ -1,4 +1,7 @@
-#include "cache_header.h"
+#include <iostream>
+#include <unordered_map>
+#include <list>
+#include <cassert>
 
 template <typename T>
 class Cache {
@@ -16,62 +19,47 @@ private:
     } main, in, out;
 
 public:
-    explicit Cache (size_t size_main, size_t size_in, size_t size_out) :
-        main(size_main),
-        in(size_in),
-        out(size_out) {};
+    explicit Cache (size_t cache_size) :
+            main(cache_size / 10 * 2),
+            in(cache_size / 10 * 2),
+            out(cache_size - main.size - in.size) {};
 
-    size_t LookUpHits (std::vector<T> pages);
+    size_t LookUpHits (T *pages, size_t page_number);
 
     static void MovePage_FromFirst_ToSecondContainer (T page, Container& container1,
-                                                              Container& container2);
+                                                      Container& container2);
     void AddNewPage(T page);
 };
 
+int main (){
+    int* pages;
+    size_t page_number, cache_size;
 
-int main (int argc, char* argv[]){
-    std::vector<int> pages;
-    int page_number, mean1, mean2;
-    const char* filename = "test.txt";
+    int res = scanf ("%zu %zu", &cache_size, &page_number);
+    assert(res == 2);
+    pages = new int[page_number];
 
-    if (argc >= 4) {
-#ifdef USERTEST
-        if (argc < 5) {
-            printf("Not all parameters\n")
-            exit(0);
-        }
-        filename = argv[4];
-#endif
-        page_number = static_cast<int>(strtol(argv[1], nullptr, 0));
-        mean1 = static_cast<int>(strtol(argv[2], nullptr, 0));
-        mean2 = static_cast<int>(strtol(argv[3], nullptr, 0));
-        FillTestFile(filename,page_number, mean1, mean2);
-
-        pages = GetIntPage(filename);
+    for (int i = 0; i < page_number; ++i)
+        scanf ("%d", &pages[i]);
 
 
-        size_t main_size = page_number / 5 * 2,
-            in_size = page_number / 5,
-            out_size = page_number / 5 * 6;
-        Cache<int> cache{main_size, in_size, out_size};
-        size_t result = cache.LookUpHits(pages);
-        printf ("result is %zu\n", result);
-    } else {
-        printf ("Not all parameters\n");
-        exit(0);
-    }
+    Cache<int> cache{cache_size};
+    size_t result = cache.LookUpHits(pages, page_number);
+    printf ("%zu\n", result);
 
+    delete [] pages;
     return 0;
 }
 
-template<typename T>
-size_t Cache<T>::LookUpHits(std::vector<T> pages) {
-    size_t hits = 0;
-    auto page_iter = pages.begin();
 
-    for (; page_iter != pages.end(); ++page_iter) {
+template<typename T>
+size_t Cache<T>::LookUpHits(T *pages, size_t page_number) {
+    size_t hits = 0;
+
+
+    for (int i = 0; i < page_number; ++i) {
         //T page = getPage(file_name);
-        T page = *page_iter;
+        T page = pages[i];
 
         if (main.hash_table.find(page) != main.hash_table.end()) {
             MovePage_FromFirst_ToSecondContainer(page, main, main);
@@ -81,11 +69,13 @@ size_t Cache<T>::LookUpHits(std::vector<T> pages) {
 
         if (in.hash_table.find(page) != in.hash_table.end()) {
             MovePage_FromFirst_ToSecondContainer(page, in, in);
+            ++hits;
             continue;
         }
 
         if (out.hash_table.find(page) != out.hash_table.end()) {
             MovePage_FromFirst_ToSecondContainer(page, out, main);
+            ++hits;
             continue;
         }
 
@@ -119,14 +109,4 @@ void Cache<T>::AddNewPage(T page) {
 
     in.list.push_front(page);
     in.hash_table[page] = in.list.begin();
-}
-
-std::vector<int> GetIntPage (const char *file_name) {
-    FILE *file = fopen(file_name, "r");
-    fseek(file, 0, SEEK_SET);
-    int page = 0;
-    std::vector<int> pages;
-    while (fscanf(file, "%d", &page) == 1)
-        pages.push_back(page);
-    return pages;
 }
