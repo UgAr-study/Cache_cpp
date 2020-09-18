@@ -11,6 +11,16 @@ void Generator (FILE *file, int page_number, int mean, int range) {
     }
 }
 
+std::vector<int> GetIntPage (const char *file_name) {
+    FILE *file = fopen(file_name, "r");
+    fseek(file, 0, SEEK_SET);
+    int page = 0;
+    std::vector<int> pages;
+    while (fscanf(file, "%d", &page) == 1)
+        pages.push_back(page);
+    return pages;
+}
+
 void FillTestFile (const char* filename, int page_namber, int mean1, int mean2) {
     FILE *test_file = fopen(filename, "w");
     Generator(test_file, page_namber, mean1, 30);

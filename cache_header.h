@@ -10,13 +10,19 @@
 #include <cassert>
 
 template <typename T>
+class Cache_2Q;
+
+template <typename T>
 class LRU_Cache {
     using un_map = std::unordered_map<T, typename std::list<T>::iterator>;
+    friend Cache_2Q<T>;
 
 private:
     un_map hash_table;
     std::list<T> list;
     size_t size;
+
+    void MoveFromAnother(T page, LRU_Cache<T> &other);
 public:
     explicit LRU_Cache (size_t size_) : size (size_) {};
     explicit LRU_Cache () : size (0) {};
@@ -25,7 +31,6 @@ public:
     std::list<T> & getList() { return list; }
     un_map & getMap() { return hash_table; }
 
-    void MoveFromAnother(T page, LRU_Cache<T> &other);
     void PushFront (T page);
 
     size_t LookUp_LRU_Hits (T *pages, size_t page_number);
@@ -48,15 +53,5 @@ public:
 
     void AddNewPage(T page);
 };
-
-
-
-std::vector<int> GetIntPage (const char *file_name);
-void Generator (FILE *file, int page_number, int mean, int range);
-void FillTestFile (const char* filename, int page_namber, int mean1, int mean2);
-std::vector<int> GetIntPage (const char *file_name);
-
-size_t LRU (size_t cache_size, int *pages, size_t page_number);
-size_t Q2 (size_t cache_size, int *pages, size_t page_number);
 
 #include "cache_templates.tpp"
